@@ -17,7 +17,7 @@ volatile unsigned char TimerFlag = 0; //TimerISR() sets this to 1, C program cle
 //variables for mapping AVR TSR
 unsigned long _avr_timer_M = 1; //start count from here down to zero, default = 1ms
 unsigned long _avr_timer_cntcurr = 0; //internal count of ticks (1ms)
-unsigned char tmpC = 0x00; //initializes variable
+unsigned char tmpB = 0x00; //initializes variable
 enum States{start, lightA, lightB, lightC}state;
 
 void TimerOn() {
@@ -79,22 +79,30 @@ void lightTick(){
 	switch(state)
 	{
 		case lightA:
-			tmpC = 0x01;
+			tmpB = 0x01;
 			break;
 		case lightB:
-			tmpC = 0x02;
+			tmpB = 0x02;
 			break;
 		case lightC:
-			tmpC = 0x04;
+			tmpB = 0x04;
 			break;
 	}
 }
 int main(void) {
     /* Insert DDR and PORT initializations */
-
+	DDRB = 0xFF; //set port b to output
+	PORTB = 0x00; //init port B to 0s
+	TimerSet(1000);
+	TimerOn();
+	unsigned char tmpB = 0x00;
+	state = start;
     /* Insert your solution below */
     while (1) {
-
+	lightTick();
+	while (!TimerFlag); //wait 1 seec
+	TimerFlag = 0;
+	PORTB = tmpB;
     }
     return 0;
 }
